@@ -1,0 +1,6 @@
+e2cnn==0.2.3
+kornia==0.8.2
+Pillow==12.2.0
+torch==2.11.0+cu128
+torchvision==0.26.0+cu128
+tqdm==4.67.3
