@@ -1,4 +1,4 @@
-# GARP-PAD: Rotation-Equivariant Fingerprint Presentation Attack Detection
+# GARP-PAD: A Gated Attention Rotation-equivariant Patch-based Network for Robust Fingerprint Presentation Attack Detection
 
 Official PyTorch implementation of **GARP-PAD**, a rotation-equivariant, patch-based deep learning framework for **Fingerprint Presentation Attack Detection (PAD)**.
 
@@ -9,12 +9,7 @@ Official PyTorch implementation of **GARP-PAD**, a rotation-equivariant, patch-b
 
 ## 🔍 Overview
 
-Fingerprint PAD aims to distinguish between:
-
-* **Bona fide samples** (real fingers)
-* **Presentation attacks** (spoofs made of silicone, latex, screens, etc.)
-
-Traditional CNN-based methods struggle with:
+Traditional CNN-based PAD struggle with:
 
 * ❌ sensitivity to **rotation / finger placement**
 * ❌ dilution of **local spoof evidence**
@@ -80,12 +75,24 @@ GARP-PAD/
 ├── models/               # Encoders + GARP-PAD
 ├── training/             # Train / eval logic
 ├── scripts/              # CLI scripts
-├── utils/                # Config, metrics
 │
 ├── main.py               # Entry point
 ├── requirements.txt
 └── README.md
 ```
+
+---
+
+## ⚙️ Requirements
+* Python 3.12
+* e2cnn==0.2.3
+* kornia==0.8.2
+* Pillow==12.2.0
+* torch==2.11.0
+* torchvision==0.26.0
+* tqdm==4.67.3
+
+⚠️ Note: For GPU support, install the appropriate PyTorch build for your CUDA version.
 
 ---
 
@@ -96,12 +103,6 @@ git clone https://github.com/carsim97/GARP-PAD.git
 cd GARP-PAD
 
 pip install -r requirements.txt
-```
-
-### 🔥 PyTorch (GPU)
-
-```bash
-pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu128
 ```
 
 ---
@@ -153,21 +154,6 @@ $$
 
 ---
 
-## 📈 Key Results
-
-### ✅ Strengths
-
-* Robust to **rotation and finger placement**
-* Strong **intra-sensor performance**
-* Stable across dataset evolution 
-
-### ⚠️ Limitations
-
-* Performance drops in **cross-sensor scenarios**
-* Sensitive to **sensor-specific noise/physics** 
-
----
-
 ## 🧠 Insights
 
 * Rotation equivariance is **more effective than augmentation**
@@ -176,29 +162,7 @@ $$
 
 ---
 
-## 📌 TODO / Future Work
-
-* [ ] Domain adaptation for cross-sensor robustness
-* [ ] Real-time deployment optimization
-
----
-
-
 ## ⚠️ Disclaimer
 
 This repository is for **research purposes only**.
 The associated paper is currently under review.
-
----
-
-## 🙌 Acknowledgements
-
-* LivDet benchmark series
-* E(2)-CNN framework
-* PyTorch ecosystem
-
----
-
-## ⭐ If you find this useful
-
-Consider starring ⭐ the repo!
