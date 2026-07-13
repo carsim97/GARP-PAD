@@ -13,6 +13,17 @@ INPUT_DIR = 'data'
 CHECKPOINT_DIR = 'checkpoints'
 
 
+def _print_config_diff(invariant, aggregator):
+    # one-line diff vs the full GARP-PAD model (normpool + gated attention)
+    changes = []
+    if invariant != 'normpool':
+        changes.append(f"invariant: normpool -> {invariant}")
+    if aggregator != 'gated':
+        changes.append(f"aggregator: gated -> {aggregator}")
+    diff = "; ".join(changes) if changes else "none (full GARP-PAD)"
+    print(f"[CONFIG DIFF vs full] {diff}")
+
+
 def run_train(args):
     num_patches = args.num_patches
     batch_size = args.batch_size
@@ -31,7 +42,11 @@ def run_train(args):
 
     preprocessor = Preprocessor(patch_size=args.patch_size, num_patches=num_patches, device=device)
 
-    model = GARP_PAD()
+    invariant = getattr(args, 'invariant', 'normpool')
+    aggregator = getattr(args, 'aggregator', 'gated')
+    _print_config_diff(invariant, aggregator)
+
+    model = GARP_PAD(invariant=invariant, aggregator=aggregator)
     model = model.to(device)
 
     opt = torch.optim.Adam(model.parameters(), lr=args.lr)

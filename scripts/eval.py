@@ -26,9 +26,21 @@ def run_eval(args):
 
     device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
 
-    preprocessor = Preprocessor(patch_size=args.patch_size, num_patches=None, device=device)
+    # deterministic patch subsampling when a cap is used, so results are reproducible
+    # and identical across ROI settings
+    torch.manual_seed(0)
 
-    model = GARP_PAD()
+    preprocessor = Preprocessor(
+        patch_size=args.patch_size, num_patches=None, device=device,
+        roi_percentile=getattr(args, 'roi_percentile', 0.85),
+        mask_ratio_thresh=getattr(args, 'mask_ratio', 0.8),
+        max_eval_patches=getattr(args, 'max_eval_patches', None),
+    )
+
+    invariant = getattr(args, 'invariant', 'normpool')
+    aggregator = getattr(args, 'aggregator', 'gated')
+
+    model = GARP_PAD(invariant=invariant, aggregator=aggregator)
     model = model.to(device)
 
     state = torch.load(os.path.join(CHECKPOINT_DIR, args.checkpoint_file), map_location=device)

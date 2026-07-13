@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the following paper."
+title: "GARP-PAD: A Gated Attention Rotation-equivariant Patch-based Architecture for Fingerprint Presentation Attack Detection"
+authors:
+  - family-names: Carta
+    given-names: Simone
+    affiliation: "University of Cagliari"
+  - family-names: Casula
+    given-names: Roberto
+    affiliation: "University of Cagliari"
+  - family-names: Marcialis
+    given-names: Gian Luca
+    affiliation: "University of Cagliari"
+preferred-citation:
+  type: conference-paper
+  title: "GARP-PAD: A Gated Attention Rotation-equivariant Patch-based Architecture for Fingerprint Presentation Attack Detection"
+  authors:
+    - family-names: Carta
+      given-names: Simone
+    - family-names: Casula
+      given-names: Roberto
+    - family-names: Marcialis
+      given-names: Gian Luca
+  collection-title: "IEEE International Joint Conference on Biometrics (IJCB)"
+  year: 2026
+repository-code: "https://github.com/carsim97/GARP-PAD"
+license: MIT

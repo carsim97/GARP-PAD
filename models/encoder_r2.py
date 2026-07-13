@@ -42,7 +42,7 @@ class R2DWConvBlock(nn.Module):
 
 
 class R2Encoder(nn.Module):
-    def __init__(self, embed_dim=64, base_width=16):
+    def __init__(self, embed_dim=64, base_width=16, invariant='normpool'):
         super().__init__()
 
         self.r2_act = gspaces.Rot2dOnR2(N=8)
@@ -57,10 +57,18 @@ class R2Encoder(nn.Module):
         self.stage1 = R2DWConvBlock(self.type1, self.type2, stride=2)
         self.stage2 = R2DWConvBlock(self.type2, self.type3, stride=2)
 
-        self.invariant_map = enn.NormPool(self.type3)
+        # invariant descriptor: norm-pool (default) or group/orientation max-pool over C8.
+        # Both map each of the len(type3) fields to a single invariant channel -> D unchanged.
+        if invariant == 'normpool':
+            self.invariant_map = enn.NormPool(self.type3)
+        elif invariant == 'maxpool':
+            self.invariant_map = enn.GroupPooling(self.type3)
+        else:
+            raise ValueError(f"unknown invariant map: {invariant}")
+        self.invariant = invariant
         self.pool = nn.AdaptiveAvgPool2d(1)
 
-        self.final_ch = len(self.type3)
+        self.final_ch = len(self.invariant_map.out_type)
         self.fc = nn.Linear(self.final_ch, embed_dim)
 
     def forward(self, x):
@@ -77,5 +85,5 @@ class R2Encoder(nn.Module):
         t = x.tensor
         t = self.pool(t).view(B * P, -1)
         out = self.fc(t)
-
+ 
         return out.view(B, P, -1)

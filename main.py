@@ -17,6 +17,8 @@ def main():
     pt.add_argument('--lr', type=float, default=1e-3)
     pt.add_argument('--workers', type=int, default=4)
     pt.add_argument('--device', default='cuda')
+    pt.add_argument('--invariant', choices=['normpool', 'maxpool'], default='normpool')
+    pt.add_argument('--aggregator', choices=['gated', 'mean'], default='gated')
 
     pe = sub.add_parser('eval')
     pe.add_argument('--data_file', default='data.txt')
@@ -24,6 +26,11 @@ def main():
     pe.add_argument('--patch_size', type=int, default=32)
     pe.add_argument('--workers', type=int, default=4)
     pe.add_argument('--device', default='cuda')
+    pe.add_argument('--invariant', choices=['normpool', 'maxpool'], default='normpool')
+    pe.add_argument('--aggregator', choices=['gated', 'mean'], default='gated')
+    pe.add_argument('--roi_percentile', type=float, default=0.85)
+    pe.add_argument('--mask_ratio', type=float, default=0.8)
+    pe.add_argument('--max_eval_patches', type=int, default=None)
 
     args = parser.parse_args()
 

@@ -33,3 +33,21 @@ class PatchAggregator(nn.Module):
         out = out.reshape(B, D)
 
         return out, A.mean(dim=1)
+
+
+class MeanAggregator(nn.Module):
+    """Unweighted mean pooling over the per-patch descriptors (a_i = 1/n).
+
+    Removes all attention parameters (V, U, w, heads); keeps D=64 and feeds the
+    same downstream linear classifier.
+    """
+
+    def __init__(self, embed_dim, num_heads=8, att_dim=128):
+        super().__init__()
+        self.embed_dim = embed_dim
+
+    def forward(self, x):
+        B, P, D = x.shape
+        out = x.mean(dim=1)
+        A = x.new_full((B, P), 1.0 / P)
+        return out, A

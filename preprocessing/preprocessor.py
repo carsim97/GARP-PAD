@@ -4,11 +4,19 @@ import torch.nn.functional as F
 
 
 class Preprocessor:
-    def __init__(self, patch_size=32, num_patches=8, device='cuda'):
+    def __init__(self, patch_size=32, num_patches=8, device='cuda',
+                 roi_percentile=0.85, mask_ratio_thresh=0.8, max_eval_patches=None):
         self.patch_size = patch_size
         self.num_patches = num_patches
         self.device = device
         self.stride = patch_size // 4
+        # ROI knobs (defaults reproduce the paper pipeline exactly):
+        #   roi_percentile      -> coherence-score quantile used to threshold the ROI
+        #   mask_ratio_thresh   -> min fraction of a patch that must lie inside the ROI
+        #   max_eval_patches    -> inference-only cap on patches per image (None = all)
+        self.roi_percentile = roi_percentile
+        self.mask_ratio_thresh = mask_ratio_thresh
+        self.max_eval_patches = max_eval_patches
 
     @torch.no_grad()
     def process_batch(self, batch_imgs):
@@ -32,7 +40,7 @@ class Preprocessor:
         score = mag_s * coh
 
         flattened_scores = score.view(B, -1)
-        k = int(0.85 * flattened_scores.size(1))
+        k = int(self.roi_percentile * flattened_scores.size(1))
         thresh, _ = torch.kthvalue(flattened_scores, k, dim=1)
         mask = (score > thresh.view(B, 1, 1, 1)).float()
 
@@ -75,9 +83,14 @@ class Preprocessor:
 
         final_batch = []
         for i in range(B):
-            valid_idx = (mask_ratio[i] >= 0.8).nonzero(as_tuple=True)[0]
+            valid_idx = (mask_ratio[i] >= self.mask_ratio_thresh).nonzero(as_tuple=True)[0]
             if self.num_patches is None:
                 idx = valid_idx
+                # inference uses all valid patches; optionally cap to bound cost/memory
+                # when a (large) ROI yields very many patches.
+                if self.max_eval_patches is not None and len(idx) > self.max_eval_patches:
+                    perm = torch.randperm(len(idx))[:self.max_eval_patches]
+                    idx = idx[perm]
             elif len(valid_idx) < self.num_patches:
                 idx = torch.randint(0, len(valid_idx) if len(valid_idx) > 0 else 1, (self.num_patches,))
             else:
